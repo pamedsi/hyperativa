@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -21,14 +20,6 @@ import java.util.UUID;
 public class UserInfraRepository implements UserRepository {
 
     private final UserJPARepository userJPARepository;
-
-    @Override
-    public Optional<User> findUserByEmail(String email) {
-        log.info("[starts] UserInfraRepository - findUserByEmail()");
-        Optional<User> result = userJPARepository.findByEmailAndDeletedAccountFalse(email);
-        log.info("[ends] UserInfraRepository - findUserByEmail()");
-        return result;
-    }
 
     @Override
     public User getUserByEmail(String email) {

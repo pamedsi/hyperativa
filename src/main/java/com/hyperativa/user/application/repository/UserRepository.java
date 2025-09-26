@@ -5,15 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface UserRepository {
 
     void saveUser(User user);
-
-    Optional<User> findUserByEmail(String email);
 
     User getUserByEmail(String email);
 
