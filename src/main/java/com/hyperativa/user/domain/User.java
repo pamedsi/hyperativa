@@ -1,17 +1,24 @@
 package com.hyperativa.user.domain;
 
 
-import com.hyperativa.user.application.api.CreateUserRequest;
-import com.hyperativa.user.application.api.UpdatePasswordRequest;
-import com.hyperativa.user.application.api.UpdateUserRequest;
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import jakarta.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -19,7 +26,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table (name = "user_entity")
+import com.hyperativa.user.application.api.CreateUserRequest;
+import com.hyperativa.user.application.api.UpdateUserRequest;
+
+@Table(name = "users")
 @Entity
 @Getter
 @RequiredArgsConstructor
@@ -45,25 +55,23 @@ public class User implements UserDetails {
     @Getter(AccessLevel.NONE)
     private Boolean deletedAccount;
 
-    public User(CreateUserRequest userRequestDTO) {
+    public User(CreateUserRequest userRequestDTO, String hashedPassword) {
         identifier = UUID.randomUUID();
         name = userRequestDTO.name();
         email = userRequestDTO.email();
-        passwordHash = hashPassword(userRequestDTO.password());
+        passwordHash = hashedPassword;
         birthdate = userRequestDTO.birthdate();
         role = UserRole.CUSTOMER;
         deletedAccount = false;
     }
 
-    public void updatePassword(UpdatePasswordRequest newPassword) {
-        passwordHash = hashPassword(newPassword.newPassword());
+    public void updatePassword(String hashedPassword) {
+        passwordHash = hashedPassword;
     }
 
     public void delete() {
         deletedAccount = true;
     }
-
-    private String hashPassword(String password) {return BCrypt.hashpw(password, BCrypt.gensalt());}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

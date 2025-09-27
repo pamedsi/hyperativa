@@ -8,6 +8,7 @@ import com.hyperativa.user.application.api.UpdateUserRequest;
 import com.hyperativa.user.application.api.UserDetailsDTO;
 import com.hyperativa.user.application.repository.UserRepository;
 import com.hyperativa.user.domain.User;
+import com.hyperativa.utils.Hasher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -22,11 +23,13 @@ import java.util.UUID;
 @Log4j2
 public class UserApplicationService implements UserService {
     private final UserRepository userRepository;
+    private final Hasher hasher;
 
     @Override
     public void createUser(CreateUserRequest createUserRequestDTO) {
         log.info("[starts] UserApplicationService -> createUser()");
-        User newUser = new User(createUserRequestDTO);
+        String hashedPassword = hasher.hashPassword(createUserRequestDTO.password());
+        User newUser = new User(createUserRequestDTO, hashedPassword);
         userRepository.saveUser(newUser);
         log.info("[ends] UserApplicationService -> createUser()");
     }
@@ -71,7 +74,9 @@ public class UserApplicationService implements UserService {
     public void updatePassword(String email, UUID userIdentifier, UpdatePasswordRequest passwordRequest) {
         log.info("[starts] UserApplicationService -> updatePassword()");
         User user = verifyIfTheUserTryingToAccessCan(email, userIdentifier);
-        user.updatePassword(passwordRequest);
+        String hashedPassword = hasher.hashPassword(passwordRequest.newPassword());
+        user.updatePassword(hashedPassword
+        );
         userRepository.saveUser(user);
         log.info("[ends] UserApplicationService -> updatePassword()");
     }

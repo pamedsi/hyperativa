@@ -59,4 +59,5 @@ public class UserInfraRepository implements UserRepository {
         userJPARepository.save(user);
         log.info("[ends] UserInfraRepository - saveUser()");
     }
+
 }

@@ -12,6 +12,7 @@ public record UserDetailsDTO (
         String email,
         UserRole role
 ) {
+
     public UserDetailsDTO (User userEntity) {
         this(
                 userEntity.getIdentifier(),
