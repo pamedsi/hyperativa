@@ -71,7 +71,7 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 new ExceptionDetails(
                         "Internal Server Error",
-                        "Erro interno! Tente novamente mais tarde ou contate o suporte!",
+                        "Internal error! Please contact support or try again later.",
                         500,
                         LocalDateTime.now().toString(),
                         request.getServletPath(),
