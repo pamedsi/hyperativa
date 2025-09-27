@@ -12,6 +12,6 @@ public interface AuthenticationAPI {
     AuthenticationResponse login(@RequestBody @Valid UserCredentials userCredentials);
 
     @GetMapping("/validation")
-    ValidTokenResponse validateToken (@RequestHeader("Authorization") String token);
+    ValidTokenResponse validateToken(@RequestHeader("Authorization") String token);
 
 }

@@ -11,10 +11,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @Log4j2
+@RestController
 @RequiredArgsConstructor
 public class AuthenticationRestController implements AuthenticationAPI {
+
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
     private final UserRepository userRepository;
