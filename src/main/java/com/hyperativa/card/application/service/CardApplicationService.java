@@ -67,7 +67,7 @@ public class CardApplicationService implements CardService {
 
         // Processing lines
         ProcessingResult result = processCardLines(lines, owner, cards);
-        validateAmountOfCards(batchHeader.amount(), cards.size(), result.successCount(), result.failureCount());
+        validateAmountOfCards(cards.size(), batchHeader.amount(), result.successCount(), result.failureCount());
 
         // Persisting data
         Batch batch = new Batch(batchHeader, owner);

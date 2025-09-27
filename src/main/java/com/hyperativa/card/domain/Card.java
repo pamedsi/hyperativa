@@ -21,6 +21,7 @@ import lombok.Setter;
 
 import com.hyperativa.user.domain.User;
 
+@Getter
 @Entity
 @Table(name = "cards")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,7 +32,6 @@ public class Card {
     @Getter(AccessLevel.NONE)
     private Long id;
 
-    @Getter
     @Column (unique = true, nullable = false)
     private UUID identifier;
 

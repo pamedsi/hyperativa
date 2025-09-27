@@ -56,7 +56,7 @@ public class ValidTextFileValidator implements ConstraintValidator<ValidTextFile
         return true;
     }
 
-    private boolean isValidContentType(String contentType) {
+    public boolean isValidContentType(String contentType) {
         if (contentType == null) return false;
 
         return Arrays.stream(allowedTypes)
