@@ -1,5 +1,6 @@
 package com.hyperativa.config;
 
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,4 +24,5 @@ public class ValidationConfig {
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }
+
 }

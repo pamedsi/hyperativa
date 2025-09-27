@@ -25,8 +25,8 @@ public class SecurityConfigurations {
 
     private final SecurityFilter securityFilter;
     private static final String USER_ENDPOINT = "/user";
+    private static final String CARD_ENDPOINT = "/card";
     private static final String CUSTOMER = "CUSTOMER";
-    private static final String ADMIN = "ADMIN";
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -46,17 +46,15 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/authentication/validation").permitAll()
 
                         // Users:
-                        .requestMatchers(HttpMethod.GET, USER_ENDPOINT).hasRole(ADMIN)
-                        .requestMatchers(HttpMethod.GET, USER_ENDPOINT +"/{identifier}").hasRole(CUSTOMER)
                         .requestMatchers(HttpMethod.POST, USER_ENDPOINT).permitAll()
-                        .requestMatchers(HttpMethod.PUT, USER_ENDPOINT).hasRole(CUSTOMER)
                         .requestMatchers(HttpMethod.DELETE, USER_ENDPOINT).hasRole(CUSTOMER)
-                        .requestMatchers(HttpMethod.PATCH, USER_ENDPOINT + "/password").hasRole(CUSTOMER)
 
                         // Cards:
-                        .requestMatchers(HttpMethod.POST, USER_ENDPOINT + "/card/single").hasRole(CUSTOMER)
+                        .requestMatchers(HttpMethod.POST, CARD_ENDPOINT + "/single").hasRole(CUSTOMER)
+                        .requestMatchers(HttpMethod.POST, CARD_ENDPOINT + "/batch").hasRole(CUSTOMER)
+                        .requestMatchers(HttpMethod.GET, CARD_ENDPOINT + "/{cardNumber}").hasRole(CUSTOMER)
 
-                        .anyRequest().authenticated()
+                        .anyRequest().denyAll()
                 )
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
