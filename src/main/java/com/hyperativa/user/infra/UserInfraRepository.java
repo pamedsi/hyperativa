@@ -30,14 +30,6 @@ public class UserInfraRepository implements UserRepository {
     }
 
     @Override
-    public Page<User> getAllUsers(Pageable pageable) {
-        log.info("[starts] UserInfraRepository - getAllUsers()");
-        Page<User> users = userJPARepository.findAllByDeletedFalse(pageable);
-        log.info("[ends] UserInfraRepository - getAllUsers()");
-        return users;
-    }
-
-    @Override
     public User getUserByIdentifier(UUID userIdentifier) {
         log.info("[starts] UserInfraRepository - getUserWithIdentifier()");
         User user = userJPARepository.findByIdentifierAndDeletedFalse(userIdentifier).orElseThrow(() -> new APIException("Usuário não encontrado!", HttpStatus.NOT_FOUND));
