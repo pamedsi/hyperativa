@@ -14,7 +14,7 @@ import java.util.UUID;
 @Log4j2
 @RequiredArgsConstructor
 @RestController
-public class UserController implements UserAPI {
+public class UserRestController implements UserAPI {
     private final UserService userService;
     private final TokenService tokenService;
 
@@ -22,14 +22,14 @@ public class UserController implements UserAPI {
     public void createUser(CreateUserRequest createUserRequest) {
         log.info("[starts] UserController -> createUser()");
         userService.createUser(createUserRequest);
-        log.info("[ends] UserController -> createUser()");
+        log.info("[ends] UserController -> createUser()\n");
     }
 
     @Override
     public Page<UserDetailsDTO> getUsers(Pageable pageable) {
         log.info("[starts] UserController -> getUsers()");
         Page<UserDetailsDTO> page = userService.getUsers(pageable);
-        log.info("[ends] UserController -> getUsers()");
+        log.info("[ends] UserController -> getUsers()\n");
         return page;
     }
 
@@ -38,7 +38,7 @@ public class UserController implements UserAPI {
         log.info("[starts] UserController -> getUser()");
         String email = tokenService.decode(token);
         UserDetailsDTO user = userService.getUser(email, userIdentifier);
-        log.info("[ends] UserController -> getUser()");
+        log.info("[ends] UserController -> getUser()\n");
         return user;
     }
 
@@ -47,7 +47,7 @@ public class UserController implements UserAPI {
         log.info("[starts] UserController -> editUser()");
         String email = tokenService.decode(token);
         userService.editUser(email, userIdentifier, userDTO);
-        log.info("[ends] UserController -> editUser()");
+        log.info("[ends] UserController -> editUser()\n");
     }
 
     @Override
@@ -55,7 +55,7 @@ public class UserController implements UserAPI {
         log.info("[starts] UserController -> deleteUser()");
         String email = tokenService.decode(token);
         userService.deleteUser(email, userIdentifier);
-        log.info("[ends] UserController -> deleteUser()");
+        log.info("[ends] UserController -> deleteUser()\n");
     }
 
     @Override
@@ -63,6 +63,6 @@ public class UserController implements UserAPI {
         log.info("[starts] UserController -> updatePassword()");
         String email = tokenService.decode(token);
         userService.updatePassword(email, userIdentifier, passwordRequest);
-        log.info("[ends] UserController -> updatePassword()");
+        log.info("[ends] UserController -> updatePassword()\n");
     }
 }

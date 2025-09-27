@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Log4j2
 @RequiredArgsConstructor
-public class AuthenticationController implements AuthenticationAPI {
+public class AuthenticationRestController implements AuthenticationAPI {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
     private final UserRepository userRepository;
@@ -26,7 +26,7 @@ public class AuthenticationController implements AuthenticationAPI {
         Authentication auth = authenticationManager.authenticate(username);
         User user = (User) auth.getPrincipal();
         String token = tokenService.generateToken(user);
-        log.info("[ends] AuthenticationController -> login()");
+        log.info("[ends] AuthenticationController -> login()\n");
         return new AuthenticationResponse(token, user.getRole());
     }
 
@@ -35,7 +35,7 @@ public class AuthenticationController implements AuthenticationAPI {
         log.info("[starts] AuthenticationController -> validateToken()");
         String email = tokenService.decode(token);
         User user = userRepository.getUserByEmail(email);
-        log.info("[ends] AuthenticationController -> validateToken()");
+        log.info("[ends] AuthenticationController -> validateToken()\n");
         return new ValidTokenResponse(user.getName(), user.getRole());
     }
 
