@@ -19,4 +19,10 @@ public class APIException extends RuntimeException {
 		httpStatusInNumber = status.value();
 	}
 
+    public APIException() {
+        super("Internal server error");
+        httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        httpStatusInNumber = HttpStatus.INTERNAL_SERVER_ERROR.value();
+    }
+
 }
