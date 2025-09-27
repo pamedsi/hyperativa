@@ -21,29 +21,29 @@ public class CardNumberValidator implements ConstraintValidator<ValidCardNumber,
     public boolean isValid(String cardNumber, ConstraintValidatorContext context) {
 
         if (cardNumber == null || cardNumber.trim().isEmpty()) {
-            buildCustomMessage(context, "Card number cannot be null or empty!");
+            buildCustomMessage(context, "Card number cannot be null or empty");
             return false;
         }
 
         String cleanedNumber = cardNumber.replaceAll("\\s+", "");
         if (cleanedNumber.length() < MIN_LENGTH || cleanedNumber.length() > MAX_LENGTH) {
-            buildCustomMessage(context, format("Card number must be at least %s and maximum %s length!", MIN_LENGTH, MAX_LENGTH));
+            buildCustomMessage(context, format("Card number must be at least %s and maximum %s length", MIN_LENGTH, MAX_LENGTH));
             return false;
         }
 
         if (!cleanedNumber.matches("\\d+")) {
-            buildCustomMessage(context, "Card number must contain only digits!");
+            buildCustomMessage(context, "Card number must contain only digits");
             return false;
         }
 
         if (!isValidLuhn(cleanedNumber)) {
-            buildCustomMessage(context, format("'%s' is not a valid card number!", cardNumber));
+            buildCustomMessage(context, format("'%s' is not a valid card number", cardNumber));
             return false;
         }
 
         String hashCardNumber = hasher.hashCardNumber(cardNumber);
         if (cardRepository.existsCardByNumber(hashCardNumber)) {
-            buildCustomMessage(context, "Card number already exists!");
+            buildCustomMessage(context, "Card number already exists");
             return false;
         }
 

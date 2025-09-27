@@ -55,7 +55,7 @@ public class RestExceptionHandler {
         log.error(exception.getMessage());
         return ResponseEntity.status(exception.getHttpStatus()).body(
                 new ExceptionDetails(
-                        exception.getHttpStatus().toString(),
+                        "Unexpected Error",
                         exception.getMessage(),
                         exception.getHttpStatusInNumber(),
                         LocalDateTime.now().toString(),

@@ -5,9 +5,12 @@ import com.hyperativa.card.domain.Card;
 import com.hyperativa.handler.exceptions.APIException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Log4j2
 @Repository
@@ -39,6 +42,18 @@ public class CardInfraRepository implements CardRepository {
         }
         log.info("[ends]: CardApplicationService.existsCardByNumber()");
         return false;
+    }
+
+    @Override
+    public void saveAll(List<Card> cards) {
+        log.info("[starts]: CardApplicationService.saveAll()");
+        try {
+            cardJPARepository.saveAll(cards);
+        } catch (DataIntegrityViolationException e) {
+            log.error(e.getMessage());
+            throw new APIException("One of the card numbers already exists!", HttpStatus.CONFLICT);
+        }
+        log.info("[ends]: CardApplicationService.saveAll()");
     }
 
 }
