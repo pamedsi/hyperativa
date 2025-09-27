@@ -2,13 +2,15 @@ package com.hyperativa.user.application.api;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
+import jakarta.validation.constraints.Email;
+
+import java.time.LocalDate;
+
 import com.hyperativa.user.infra.ValidBirthdate;
 import com.hyperativa.user.infra.ValidEmail;
 import com.hyperativa.user.infra.ValidPassword;
 import com.hyperativa.user.infra.ValidUserName;
-import jakarta.validation.constraints.Email;
-
-import java.time.LocalDate;
 
 public record CreateUserRequest(
         @ValidUserName
