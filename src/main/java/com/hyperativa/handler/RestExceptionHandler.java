@@ -20,7 +20,6 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionDetails> handleValidationExceptions(MethodArgumentNotValidException exception, HttpServletRequest request) {
-        log.error(ExceptionDetails.getExceptionTitle(exception.getClass().toString()));
         String errorMessage = exception.getBindingResult().getAllErrors().getFirst().getDefaultMessage();
         log.error(errorMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -36,7 +35,6 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public ResponseEntity<ExceptionDetails> handleAuthenticationExceptions(InternalAuthenticationServiceException exception, HttpServletRequest request) {
-        log.error(ExceptionDetails.getExceptionTitle(exception.getClass().toString()));
         log.error(exception.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 new ExceptionDetails(
@@ -51,7 +49,6 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(APIException.class)
     public ResponseEntity<ExceptionDetails> apiExceptionHandler(APIException exception, HttpServletRequest request) {
-        log.error(ExceptionDetails.getExceptionTitle(exception.getClass().toString()));
         log.error(exception.getMessage());
         return ResponseEntity.status(exception.getHttpStatus()).body(
                 new ExceptionDetails(
@@ -66,7 +63,6 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionDetails> generalException(Exception exception, HttpServletRequest request) {
-        log.error(ExceptionDetails.getExceptionTitle(exception.getClass().toString()));
         log.error(exception.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 new ExceptionDetails(
