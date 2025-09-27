@@ -41,20 +41,20 @@ public class SecurityConfigurations {
                 .authorizeHttpRequests( authorize -> authorize
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-                        // Para testes:
-                        .requestMatchers(HttpMethod.GET, "/seja-ratao").permitAll()
-
-                        // Autenticação:
+                        // Authentication:
                         .requestMatchers(HttpMethod.POST, "/authentication/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/authentication/validation").permitAll()
 
-                        // Usuários:
+                        // Users:
                         .requestMatchers(HttpMethod.GET, USER_ENDPOINT).hasRole(ADMIN)
                         .requestMatchers(HttpMethod.GET, USER_ENDPOINT +"/{identifier}").hasRole(CUSTOMER)
                         .requestMatchers(HttpMethod.POST, USER_ENDPOINT).permitAll()
                         .requestMatchers(HttpMethod.PUT, USER_ENDPOINT).hasRole(CUSTOMER)
                         .requestMatchers(HttpMethod.DELETE, USER_ENDPOINT).hasRole(CUSTOMER)
                         .requestMatchers(HttpMethod.PATCH, USER_ENDPOINT + "/password").hasRole(CUSTOMER)
+
+                        // Cards:
+                        .requestMatchers(HttpMethod.POST, USER_ENDPOINT + "/card/single").hasRole(CUSTOMER)
 
                         .anyRequest().authenticated()
                 )
