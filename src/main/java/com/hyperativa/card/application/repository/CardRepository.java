@@ -1,10 +1,12 @@
 package com.hyperativa.card.application.repository;
 
 
-import com.hyperativa.card.domain.Card;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
+import com.hyperativa.card.domain.Card;
+import com.hyperativa.user.domain.User;
 
 @Repository
 public interface CardRepository {
@@ -14,5 +16,7 @@ public interface CardRepository {
     boolean existsCardByNumber(String cardNumberHash);
 
     void saveAll(List<Card> cards);
+
+    Card getCardByOwner(User owner, String hashCardNumber);
 
 }

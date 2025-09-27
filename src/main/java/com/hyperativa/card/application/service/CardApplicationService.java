@@ -7,14 +7,14 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 import com.hyperativa.card.application.api.CardNumber;
 import com.hyperativa.card.application.repository.BatchRepository;
@@ -28,6 +28,8 @@ import com.hyperativa.handler.exceptions.InvalidFileException;
 import com.hyperativa.user.application.repository.UserRepository;
 import com.hyperativa.user.domain.User;
 import com.hyperativa.utils.Hasher;
+import com.hyperativa.card.application.api.CardId;
+
 
 @Log4j2
 @Service
@@ -72,6 +74,16 @@ public class CardApplicationService implements CardService {
         batch = batchRepository.saveAndGet(batch);
         saveBatchAndCards(cards, batch, result.successCount(), result.failureCount());
         log.info("[ends]: CardApplicationService.addBatchCards()");
+    }
+
+    @Override
+    public CardId getCardInfo(String cardNumber, String ownerEmail) {
+        log.info("[starts]: CardApplicationService.getCardInfo()");
+        User owner = userRepository.getUserByEmail(ownerEmail);
+        String hashCardNumber = hasher.hashCardNumber(cardNumber);
+        Card card = cardRepository.getCardByOwner(owner, hashCardNumber);
+        log.info("[ends]: CardApplicationService.getCardInfo()");
+        return new CardId(card.getIdentifier());
     }
 
     private String[] extractFileLines(MultipartFile file) {

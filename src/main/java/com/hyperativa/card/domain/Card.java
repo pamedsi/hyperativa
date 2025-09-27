@@ -22,6 +22,7 @@ public class Card {
     @Getter(AccessLevel.NONE)
     private Long id;
 
+    @Getter
     @Column (unique = true, nullable = false)
     private UUID identifier;
 
