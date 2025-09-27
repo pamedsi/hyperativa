@@ -1,6 +1,8 @@
-package com.hyperativa.card.application.repository;
+package com.hyperativa.card.infra;
 
 
+import com.hyperativa.card.application.repository.BatchJPARepository;
+import com.hyperativa.card.application.repository.BatchRepository;
 import com.hyperativa.card.domain.Batch;
 import com.hyperativa.handler.exceptions.APIException;
 import lombok.RequiredArgsConstructor;

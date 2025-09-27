@@ -1,16 +1,22 @@
-package com.hyperativa.card.application.repository;
+package com.hyperativa.card.infra;
 
 
-import com.hyperativa.card.domain.Card;
-import com.hyperativa.handler.exceptions.APIException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+
+import com.hyperativa.card.application.repository.CardJPARepository;
+import com.hyperativa.card.application.repository.CardRepository;
+import com.hyperativa.card.domain.Card;
+import com.hyperativa.handler.exceptions.APIException;
+import com.hyperativa.handler.exceptions.CardNotFoundException;
+import com.hyperativa.user.domain.User;
 
 @Log4j2
 @Repository
@@ -54,6 +60,15 @@ public class CardInfraRepository implements CardRepository {
             throw new APIException("One of the card numbers already exists!", HttpStatus.CONFLICT);
         }
         log.info("[ends]: CardApplicationService.saveAll()");
+    }
+
+    @Override
+    public Card getCardByOwner(User owner, String hashCardNumber) {
+        log.info("[starts]: CardApplicationService.getCardByOwner()");
+        Card card = cardJPARepository.findByOwnerAndCardNumberHash(owner, hashCardNumber)
+                .orElseThrow(CardNotFoundException::new);
+        log.info("[ends]: CardApplicationService.getCardByOwner()");
+        return card;
     }
 
 }
