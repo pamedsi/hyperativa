@@ -23,11 +23,9 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import com.hyperativa.user.application.api.CreateUserRequest;
-import com.hyperativa.user.application.api.UpdateUserRequest;
 
 @Table(name = "users")
 @Entity
@@ -52,8 +50,7 @@ public class User implements UserDetails {
     @Column
     private String passwordHash;
     @Column
-    @Getter(AccessLevel.NONE)
-    private Boolean deletedAccount;
+    private Boolean deleted;
 
     public User(CreateUserRequest userRequestDTO, String hashedPassword) {
         identifier = UUID.randomUUID();
@@ -62,15 +59,11 @@ public class User implements UserDetails {
         passwordHash = hashedPassword;
         birthdate = userRequestDTO.birthdate();
         role = UserRole.CUSTOMER;
-        deletedAccount = false;
-    }
-
-    public void updatePassword(String hashedPassword) {
-        passwordHash = hashedPassword;
+        deleted = false;
     }
 
     public void delete() {
-        deletedAccount = true;
+        deleted = true;
     }
 
     @Override
@@ -94,11 +87,6 @@ public class User implements UserDetails {
     private void trimStrings() {
         if (name != null) name = name.trim();
         if (email != null) email = email.trim();
-    }
-
-    public void updateUser(UpdateUserRequest userDTO) {
-        name = Objects.requireNonNullElse(userDTO.name(), name);
-        email = Objects.requireNonNullElse(userDTO.email(), email);
     }
 
     public boolean isAdmin() {

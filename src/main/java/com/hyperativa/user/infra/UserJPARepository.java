@@ -13,12 +13,12 @@ import java.util.UUID;
 @Repository
 public interface UserJPARepository extends JpaRepository <User, Long> {
 
-    Optional<User> findByEmailAndDeletedAccountFalse(String email);
+    Optional<User> findByEmailAndDeletedFalse(String email);
 
-    Page<User> findAllByDeletedAccountFalse(Pageable pageable);
+    Page<User> findAllByDeletedFalse(Pageable pageable);
 
-    Optional<User> findByIdentifierAndDeletedAccountFalse(UUID userIdentifier);
+    Optional<User> findByIdentifierAndDeletedFalse(UUID userIdentifier);
 
-    boolean existsByEmailAndDeletedAccountFalse(String email);
+    boolean existsByEmailAndDeletedFalse(String email);
 
 }
