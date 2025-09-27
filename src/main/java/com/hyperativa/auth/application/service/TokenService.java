@@ -1,17 +1,19 @@
 package com.hyperativa.auth.application.service;
 
-import com.auth0.jwt.algorithms.Algorithm;
-import com.hyperativa.handler.exceptions.APIException;
-import com.hyperativa.user.domain.User;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import com.auth0.jwt.JWT;
+import lombok.extern.log4j.Log4j2;
+
+import com.hyperativa.handler.exceptions.JwtException;
+import com.hyperativa.user.domain.User;
 
 @Service
 @Log4j2
@@ -26,13 +28,13 @@ public class TokenService {
             return JWT.create()
                     .withIssuer(ISSUER)
                     .withSubject(user.getUsername())
-                    .withExpiresAt(LocalDateTime.now().plusDays(7).toInstant(ZoneOffset.of("-03:00")))
+                    .withExpiresAt(LocalDateTime.now().plusMinutes(15).toInstant(ZoneOffset.of("-03:00")))
                     .withClaim("ROLE", user.getRole().toString())
                     .sign(algoritimo);
         }
         catch (Exception exception) {
             log.error(exception.getMessage());
-            throw new APIException("Erro ao gerar JWT", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new JwtException("Error generating JWT");
         }
     }
 
@@ -47,7 +49,8 @@ public class TokenService {
                     .getSubject();
         } catch (Exception exception) {
             log.error(exception.getMessage());
-            throw new APIException("Token inválido ou expirado!", HttpStatus.CONFLICT);
+            throw new JwtException("Invalid or expired token!");
         }
     }
+
 }
