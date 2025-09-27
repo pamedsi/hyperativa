@@ -1,15 +1,15 @@
 package com.hyperativa.user.application.api;
 
 
-import com.hyperativa.auth.application.service.TokenService;
-import com.hyperativa.user.application.service.UserService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hyperativa.auth.application.service.TokenService;
+import com.hyperativa.user.application.service.UserService;
+
 import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -26,31 +26,6 @@ public class UserRestController implements UserAPI {
     }
 
     @Override
-    public Page<UserDetailsDTO> getUsers(Pageable pageable) {
-        log.info("[starts] UserController -> getUsers()");
-        Page<UserDetailsDTO> page = userService.getUsers(pageable);
-        log.info("[ends] UserController -> getUsers()\n");
-        return page;
-    }
-
-    @Override
-    public UserDetailsDTO getUser(String token, UUID userIdentifier) {
-        log.info("[starts] UserController -> getUser()");
-        String email = tokenService.decode(token);
-        UserDetailsDTO user = userService.getUser(email, userIdentifier);
-        log.info("[ends] UserController -> getUser()\n");
-        return user;
-    }
-
-    @Override
-    public void editUser(String token, UUID userIdentifier, UpdateUserRequest userDTO) {
-        log.info("[starts] UserController -> editUser()");
-        String email = tokenService.decode(token);
-        userService.editUser(email, userIdentifier, userDTO);
-        log.info("[ends] UserController -> editUser()\n");
-    }
-
-    @Override
     public void deleteUser(String token, UUID userIdentifier) {
         log.info("[starts] UserController -> deleteUser()");
         String email = tokenService.decode(token);
@@ -58,11 +33,4 @@ public class UserRestController implements UserAPI {
         log.info("[ends] UserController -> deleteUser()\n");
     }
 
-    @Override
-    public void updatePassword(String token, UUID userIdentifier, UpdatePasswordRequest passwordRequest) {
-        log.info("[starts] UserController -> updatePassword()");
-        String email = tokenService.decode(token);
-        userService.updatePassword(email, userIdentifier, passwordRequest);
-        log.info("[ends] UserController -> updatePassword()\n");
-    }
 }
