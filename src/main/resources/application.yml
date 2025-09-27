@@ -15,6 +15,7 @@ spring:
 env:
   secret: ${SECRET}
   salt: ${SALT}
+  issuer: ${ISSUER}
 
 springdoc:
   swagger-ui:

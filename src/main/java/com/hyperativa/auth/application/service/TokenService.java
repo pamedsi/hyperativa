@@ -20,13 +20,14 @@ import com.hyperativa.user.domain.User;
 public class TokenService {
     @Value("${env.secret}")
     private String secret;
-    private static final String ISSUER = "Lirou Store";
+    @Value("${env.issuer}")
+    private String issuer;
 
     public String generateToken(User user) {
         try {
             Algorithm algoritimo = Algorithm.HMAC256(secret);
             return JWT.create()
-                    .withIssuer(ISSUER)
+                    .withIssuer(issuer)
                     .withSubject(user.getUsername())
                     .withExpiresAt(LocalDateTime.now().plusMinutes(15).toInstant(ZoneOffset.of("-03:00")))
                     .withClaim("ROLE", user.getRole().toString())
@@ -43,7 +44,7 @@ public class TokenService {
         token = token.replace("Bearer ", "");
         try {
             return JWT.require(algorithm)
-                    .withIssuer(ISSUER)
+                    .withIssuer(issuer)
                     .build()
                     .verify(token)
                     .getSubject();

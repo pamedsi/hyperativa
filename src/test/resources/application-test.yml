@@ -23,6 +23,7 @@ spring:
 env:
   secret: test-secret-key-for-jwt-token-12345
   salt: test-salt-value-12345
+  issuer: test-issuer
 
 springdoc:
   swagger-ui:
