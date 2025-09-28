@@ -17,148 +17,49 @@ paths:
   /user:
     post:
       tags:
-        - User
-      summary: Create a new user
-      description: Endpoint to create a new user in the system
+        - user-rest-controller
+      operationId: createUser
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateUserRequest'
+        required: true
       responses:
         '201':
-          description: User created successfully
-        '400':
-          description: Invalid input data
-        '500':
-          description: Internal server error
-
-  /user/{identifier}:
-    delete:
-      tags:
-        - User
-      summary: Delete a user
-      description: Endpoint to delete a user from the system
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-          description: Bearer authentication token
-        - name: identifier
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: UUID of the user to be deleted
-      responses:
-        '202':
-          description: Delete request accepted
-        '401':
-          description: Invalid or expired token
-        '404':
-          description: User not found
-        '500':
-          description: Internal server error
-
-  /authentication/login:
-    post:
-      tags:
-        - Authentication
-      summary: User login
-      description: Endpoint for user authentication
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserCredentials'
-      responses:
-        '202':
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthenticationResponse'
-        '400':
-          description: Invalid credentials
-        '401':
-          description: Authentication failed
-        '500':
-          description: Internal server error
-
-  /authentication/validation:
-    get:
-      tags:
-        - Authentication
-      summary: Validate token
-      description: Endpoint to validate an authentication token
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-          description: Bearer authentication token
-      responses:
-        '200':
-          description: Token is valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidTokenResponse'
-        '401':
-          description: Invalid or expired token
-        '500':
-          description: Internal server error
-
+          description: Created
   /card/single:
     post:
       tags:
-        - Card
-      summary: Add single card
-      description: Endpoint to add a single card to the system
+        - card-rest-controller
+      operationId: addSingleCard
       parameters:
         - name: Authorization
           in: header
           required: true
           schema:
             type: string
-          description: Bearer authentication token
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/CardNumber'
+        required: true
       responses:
         '201':
-          description: Card created successfully
-        '400':
-          description: Invalid card data
-        '401':
-          description: Invalid or expired token
-        '500':
-          description: Internal server error
-
+          description: Created
   /card/batch:
     post:
       tags:
-        - Card
-      summary: Add cards in batch
-      description: Endpoint to add multiple cards via file upload
+        - card-rest-controller
+      operationId: addBatchCards
       parameters:
         - name: Authorization
           in: header
           required: true
           schema:
             type: string
-          description: Bearer authentication token
       requestBody:
-        required: true
         content:
           multipart/form-data:
             schema:
@@ -167,149 +68,145 @@ paths:
                 file:
                   type: string
                   format: binary
-                  description: Text file containing card numbers (plain text only)
+              required:
+                - file
       responses:
         '201':
-          description: Cards created successfully
-        '400':
-          description: Invalid file or unsupported format
-        '401':
-          description: Invalid or expired token
-        '500':
-          description: Internal server error
-
+          description: Created
+  /authentication/login:
+    post:
+      tags:
+        - authentication-rest-controller
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCredentials'
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthenticationResponse'
   /card/{cardNumber}:
     get:
       tags:
-        - Card
-      summary: Get card information
-      description: Endpoint to retrieve information for a specific card
+        - card-rest-controller
+      operationId: getCardInfo
+      parameters:
+        - name: cardNumber
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CardId'
+  /authentication/validation:
+    get:
+      tags:
+        - authentication-rest-controller
+      operationId: validateToken
       parameters:
         - name: Authorization
           in: header
           required: true
           schema:
             type: string
-          description: Bearer authentication token
-        - name: cardNumber
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ValidTokenResponse'
+  /user/{identifier}:
+    delete:
+      tags:
+        - user-rest-controller
+      operationId: deleteUser
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: identifier
           in: path
           required: true
           schema:
             type: string
-          description: Card number
+            format: uuid
       responses:
-        '200':
-          description: Card information retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CardId'
-        '401':
-          description: Invalid or expired token
-        '404':
-          description: Card not found
-        '500':
-          description: Internal server error
-
+        '202':
+          description: Accepted
 components:
   schemas:
     CreateUserRequest:
       type: object
-      required:
-        - name
-        - email
-        - password
-        - birthdate
       properties:
         name:
           type: string
-          description: User's name
-          example: "John Smith"
         email:
           type: string
-          format: email
-          description: User's email address
-          example: "john.smith@email.com"
         password:
           type: string
-          format: password
-          description: User's password
-          minLength: 8
-          example: "securePassword123"
         birthdate:
           type: string
-          format: date
-          description: User's birthdate in DD/MM/YYYY format
-          example: "15/05/1990"
-
+          description: Date in MM/DD/YYYY format
+          example: 12/25/1990
+    CardNumber:
+      type: object
+      properties:
+        cardNumber:
+          type: string
     UserCredentials:
       type: object
-      required:
-        - login
-        - password
       properties:
         login:
           type: string
-          example: "john.smith@hyperativa.com"
+          minLength: 1
         password:
           type: string
-          format: password
-          example: "securePassword123"
-
+          minLength: 1
+      required:
+        - login
+        - password
     AuthenticationResponse:
       type: object
       properties:
         token:
           type: string
-          description: JWT authentication token
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         role:
           type: string
-          description: User's role
           enum:
             - ADMIN
-            - USER
-          example: "USER"
-
+            - CUSTOMER
+    CardId:
+      type: object
+      properties:
+        cardIdentifier:
+          type: string
+          format: uuid
     ValidTokenResponse:
       type: object
       properties:
         name:
           type: string
-          description: User's name
-          example: "John Smith"
         role:
           type: string
-          description: User's role
           enum:
             - ADMIN
-            - COSTUMER
-          example: "COSTUMER"
-
-    CardNumber:
-      type: object
-      required:
-        - cardNumber
-      properties:
-        cardNumber:
-          type: string
-          description: Card number
-          example: "1234567890123456"
-
-    CardId:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique card identifier
-          example: "123e4567-e89b-12d3-a456-426614174000"
-
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-
-security:
-  - BearerAuth: []
+            - CUSTOMER
