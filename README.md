@@ -1,364 +1,284 @@
-# Hyperativa Application
+# Hyperativa API - Usage Guide
 
-## Prerequisites
+## 📋 About the Application
 
-### Option 1: Docker (Recommended for quick setup)
-- Docker
-- Docker Compose
+This API was developed as a solution for the **Hyperativa Challenge**, focusing on secure credit card number registration and querying. The application allows:
 
-### Option 2: Java & Maven (For development)
-- Java 21
-- Maven 3.9.11 or higher
-- **MySQL Database** (must be provided separately) You can use a local MySQL installation or connect to a remote database instance
+- ✅ **Secure authentication** via JWT
+- ✅ **Card registration** individually or in batch via file
+- ✅ **Card querying** for existing numbers in the database
+- ✅ **Secure storage** of sensitive data
 
----
+You can find instructions to set up the environment in the main `SETUP.md` file.
 
-## 🐳 Docker Deployment (Recommended)
+## 🔌 API Documentation
 
-### Using Environment Variables with Docker Compose
+### OpenAPI/Swagger Documentation
 
-The `docker-compose.yml` file is configured to use environment variables. You have two options:
+The complete API documentation is available in two formats in the `src/main/resources` folder:
 
-#### Option 1: Use .env file (Recommended)
-Create a `.env` file in the project root:
+- **`openapi.json`** (Recommended) - Standard JSON format
+- **`openapi.yml`** - YAML alternative
 
-```env
-# Database Configuration
-DATABASE_PASSWORD=your_secure_password_here
-DATABASE_NAME=hyperativa_db
-DATABASE_USERNAME=app_user
-MYSQL_PORT=3306
-DATABASE_PORT=3306
+**We recommend using the `.json` file** for better compatibility with tools like:
+- Swagger UI
+- Postman
+- Insomnia
+- API client automation
 
-# API Configuration
-API_PORT=8080
+### 🔍 Live Swagger Documentation
 
-# Security Configuration
-SECRET=your_jwt_secret_key_here
-SALT=your_password_salt_here
-ISSUER=hyperativa-app
+You can access the interactive Swagger UI when the application is running:
+
+**URL:** `http://localhost:8080/swagger-ui.html`
+
+The Swagger UI provides:
+- Interactive API documentation
+- Direct endpoint testing from the browser
+- Request/response examples
+- Schema definitions
+
+## 🔐 Authentication Flow
+
+To use the API, follow this flow:
+
+1. **Register user** → `POST /user`
+2. **Authenticate** → `POST /authentication/login` (receives JWT token)
+3. **Use protected endpoints** with the token in the `Authorization` header
+
+**⚠️ Important:** JWT tokens expire after **15 minutes** for security reasons. You'll need to re-authenticate when the token expires.
+
+## 📚 Available Endpoints
+
+### 1. 🆕 User Registration
+**POST** `/user`
+```json
+{
+  "name": "John Smith",
+  "email": "john@email.com",
+  "password": "securePassword123",
+  "birthdate": "15/05/1990"
+}
+```
+**Date Format:** DD/MM/YYYY
+
+### 2. 🔑 Authentication
+**POST** `/authentication/login`
+```json
+{
+  "login": "john@email.com",
+  "password": "securePassword123"
+}
 ```
 
-**Important**: The `.env` file will be automatically loaded by Docker Compose.
+**Response:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "role": "CUSTOMER"
+}
+```
 
-#### Option 2: Use system environment variables
+### 3. ✅ Token Validation
+**GET** `/authentication/validation`
+**Header:** `Authorization: Bearer {token}`
 
-**Linux/macOS:**
+**Response:**
+```json
+{
+  "name": "John Smith",
+  "role": "CUSTOMER"
+}
+```
+
+### 4. 💳 Add Single Card
+**POST** `/card/single`
+**Header:** `Authorization: Bearer {token}`
+```json
+{
+  "cardNumber": "1234567890123456"
+}
+```
+
+### 5. 📁 Add Batch Cards
+**POST** `/card/batch`
+**Header:** `Authorization: Bearer {token}`
+**Form Data:** `file` (.txt file with specific format)
+
+### 6. 🔍 Query Card
+**GET** `/card/{cardNumber}`
+**Header:** `Authorization: Bearer {token}`
+**Path:** `/card/1234567890123456`
+
+**Response:**
+```json
+{
+  "cardIdentifier": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
+```
+
+### 7. 🗑️ Delete User
+**DELETE** `/user/{identifier}`
+**Header:** `Authorization: Bearer {token}`
+**Path:** `/user/a1b2c3d4-e5f6-7890-abcd-ef1234567890`
+
+## 📁 Batch File Format
+
+The batch file must follow this **specific fixed-length format**:
+
+### Header Line (Line 1)
+```
+DESAFIO-HYPERATIVA           20180524LOTE000100007
+```
+- **Positions 0-29**: Name/Identifier (`DESAFIO-HYPERATIVA`)
+- **Positions 29-37**: Date (`20180524`)
+- **Positions 37-45**: Batch Number (`LOTE0001`)
+- **Positions 45-51**: Record Count (`000007`)
+
+### Card Lines (Lines 2 to n-1)
+```
+C1     4456897922969999
+C4     4456897998199999
+C5     4456897999999999124
+```
+- **Positions 0-1**: Card identifier starting with 'C'
+- **Positions 1-7**: Batch sequence number
+- **Positions 7-26**: Card number
+
+### Footer Line (Last line)
+```
+LOTE0001000010
+```
+
+### Complete Example File:
+```
+DESAFIO-HYPERATIVA           20180524LOTE000100007
+C1     4456897922969999
+C4     4456897998199999
+C5     4456897999999999124
+C6     4456897912999999
+C7     445689799999998
+C9     4456897999099999
+C10    4456897919999999
+LOTE0001000010
+```
+
+## 🛡️ Security Features
+
+- All card numbers are **encrypted** before storage using AES encryption
+- Card numbers are **hashed** for quick lookup while maintaining security
+- **JWT tokens** with 15-minute expiration for enhanced security
+- Input data validation and sanitization
+- Secure password hashing with bcrypt
+
+## 💡 Usage Examples
+
+### Example 1: Complete Flow
 ```bash
-export DATABASE_PASSWORD=your_password
-export DATABASE_NAME=hyperativa_db
-export SECRET=your_secret
-# ... set other variables
-docker-compose up --build
+# 1. Register user
+curl -X POST http://localhost:8080/user \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Maria","email":"maria@email.com","password":"password123","birthdate":"15/05/1985"}'
+
+# 2. Authenticate (token valid for 15 minutes)
+curl -X POST http://localhost:8080/authentication/login \
+  -H "Content-Type: application/json" \
+  -d '{"login":"maria@email.com","password":"password123"}'
+
+# 3. Save card (using returned token)
+curl -X POST http://localhost:8080/card/single \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -d '{"cardNumber":"4111111111111111"}'
+
+# 4. Query card
+curl -X GET "http://localhost:8080/card/4111111111111111" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
-**Windows (Command Prompt):**
-```cmd
-set DATABASE_PASSWORD=your_password
-set DATABASE_NAME=hyperativa_db
-set SECRET=your_secret
-docker-compose up --build
-```
-
-**Windows (PowerShell):**
-```powershell
-$env:DATABASE_PASSWORD="your_password"
-$env:DATABASE_NAME="hyperativa_db"
-$env:SECRET="your_secret"
-docker-compose up --build
-```
-
-### Quick Start with Docker
-
-#### 1. Clone the repository and navigate to the project directory
-
-#### 2. Create and configure the .env file (optional but recommended)
-
-**Linux/macOS:**
+### Example 2: Batch Upload
 ```bash
-# Copy the example template and edit it
-cp .env.example .env
-# Edit the .env file with your preferred values
-nano .env  # or use your preferred editor (vim, code, etc.)
+# Create batch file with correct format
+cat > batch.txt << EOF
+DESAFIO-HYPERATIVA           20180524LOTE000100003
+C1     4111111111111111
+C2     5555555555554444
+C3     378282246310005
+LOTE0001000010
+EOF
+
+# Upload batch
+curl -X POST http://localhost:8080/card/batch \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -F "file=@batch.txt"
 ```
 
-**Windows (Command Prompt):**
-```cmd
-copy .env.example .env
-notepad .env
-```
+### Example 3: Using Swagger UI
+1. Start the application
+2. Navigate to `http://localhost:8080/swagger-ui.html`
+3. Expand endpoints to see details
+4. Click "Try it out" to test directly from the browser
+5. Use the "Authorize" button to set your JWT token
 
-**Windows (PowerShell):**
-```powershell
-Copy-Item .env.example .env
-notepad .env
-```
+## 🐛 Response Codes
 
-#### 3. Build and start the application
-```bash
-docker-compose up --build
-```
+- `201 Created` - Resource created successfully
+- `202 Accepted` - Request accepted for processing
+- `200 OK` - Operation successful
+- `401 Unauthorized` - Invalid or missing token (expired after 15 minutes)
+- `403 Forbidden` - Insufficient permissions
+- `400 Bad Request` - Invalid input data or file format
+- `500 Internal Server Error` - Non predicted error
 
-Docker Compose will automatically:
-- Read variables from the `.env` file
-- Use default values for any missing variables
-- Set up both the database and API with your configuration
+## 📊 Batch Processing Status
 
-#### 4. Access the application
-- **API Service**: http://localhost:8080 (or your custom API_PORT)
-- **MySQL Database**: localhost:3306 (or your custom MYSQL_PORT)
+When processing batch files, the system tracks:
 
-### Docker Service Overview
+- **Total records** processed
+- **Successful records** saved
+- **Failed records** with errors
+- **Processing status**: `PROCESSING`, `COMPLETED`, `FAILED`, `PARTIAL_SUCCESS`
+- **Error messages** for failed batches
 
-#### hyperdb (MySQL Database)
-- MySQL 8.0 database
-- Persistent data storage using Docker volumes
-- Automatically configured with your environment variables
-- Accessible on port 3306 (configurable)
+### Batch Status Meanings:
+- **`PROCESSING`**: Batch is currently being processed
+- **`COMPLETED`**: All cards were processed successfully
+- **`FAILED`**: No cards could be processed due to errors
+- **`PARTIAL_SUCCESS`**: Some cards succeeded, some failed
 
-#### hyperapi (Application API)
-- Spring Boot/Java application
-- Connects automatically to the MySQL database
-- Uses security settings from your environment variables
-- Runs on port 8080 (configurable)
+## 📊 Data Structure
 
----
+### User
+- `id` (UUID) - Unique identifier
+- `name` - Full name
+- `email` - Email (used for login)
+- `password` - Encrypted password
+- `birthdate` - Date of birth (DD/MM/YYYY format)
+- `role` - Profile (CUSTOMER or ADMIN)
 
-## ☕ Java & Maven Deployment (For Development)
+### Card
+- `id` (UUID) - Unique card identifier in the system
+- `encryptedCardNumber` - Encrypted card number (AES)
+- `hashedCardNumber` - Hashed card number for lookup
+- `user` - Owner user
+- `batch` - Reference to batch processing (if applicable)
+- `createdAt` - Creation date
 
-### Important Prerequisites for Java Deployment
-- **Java 21** must be installed
-- **Maven 3.9.11** or higher recommended
-- **MySQL Database must be installed and running separately**
+### Batch
+- `filename` - Original uploaded filename
+- `processedAt` - Processing timestamp
+- `totalRecords` - Total cards in batch
+- `successfulRecords` - Successfully processed cards
+- `failedRecords` - Cards that failed processing
+- `status` - Processing status
+- `errorMessage` - Error details if processing failed
 
-### Manual Setup Steps
+## 🔄 Next Steps
 
-#### 1. Configure Application Properties
-Create or modify `src/main/resources/application.yml`:
+1. **Set up the environment** following the main `README.md`
+2. **Test authentication** with the examples above
+3. **Use Swagger UI** at `http://localhost:8080/swagger-ui.html` for interactive testing
+4. **Prepare batch files** following the fixed-length format specification
+5. **Implement your client** as needed
 
-```yaml
-# Database Configuration
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/hyperativa_db
-    username: app_user
-    password: your_password_here
-  
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-
-# Server Configuration
-server:
-  port: 8080
-
-# Custom Security Configuration
-app:
-  security:
-    secret: your_jwt_secret_key_here
-    salt: your_password_salt_here
-    issuer: hyperativa-app
-```
-
-#### 2. Build the Application
-```bash
-mvn clean compile
-```
-
-#### 3. Run the Application
-```bash
-mvn spring-boot:run
-```
-
-### Using Environment Variables with Java/Maven
-
-You can also use environment variables by modifying the `application.yml`:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/${DATABASE_NAME:hyperativa_db}
-    username: ${DATABASE_USERNAME:app_user}
-    password: ${DATABASE_PASSWORD:}
-
-app:
-  security:
-    secret: ${SECRET:}
-    salt: ${SALT:}
-    issuer: ${ISSUER:hyperativa-app}
-```
-
-**Linux/macOS:**
-```bash
-export DATABASE_PASSWORD=your_password
-export SECRET=your_secret
-export SALT=your_salt
-mvn spring-boot:run
-```
-
-**Windows (Command Prompt):**
-```cmd
-set DATABASE_PASSWORD=your_password
-set SECRET=your_secret
-set SALT=your_salt
-mvn spring-boot:run
-```
-
-**Windows (PowerShell):**
-```powershell
-$env:DATABASE_PASSWORD="your_password"
-$env:SECRET="your_secret"
-$env:SALT="your_salt"
-mvn spring-boot:run
-```
-
-## 🔧 Environment Variables Reference
-
-### Database Variables
-- `DATABASE_PASSWORD`: Root password for MySQL (required)
-- `DATABASE_NAME`: Database name (default: hyperativa_db)
-- `DATABASE_USERNAME`: Database username (default: app_user)
-- `MYSQL_PORT`: External MySQL port (default: 3306)
-- `DATABASE_PORT`: Internal database port (default: 3306)
-
-### API Variables
-- `API_PORT`: External API port (default: 8080)
-- `DATABASE_HOST`: Database hostname (default: hyperdb)
-
-### Security Variables
-- `SECRET`: JWT secret key for token generation (required)
-- `SALT`: Password hashing salt (required)
-- `ISSUER`: JWT token issuer (default: hyperativa-app)
-
----
-
-## 🌐 Deployment for Different Environments
-
-### Using Docker (Simplest Method)
-For different environments, simply use different `.env` files:
-
-**Linux/macOS/Windows (same commands):**
-```bash
-# For development
-cp .env.development .env
-docker-compose up -d --build
-
-# For production
-cp .env.production .env
-docker-compose up -d --build
-```
-
-### Using Java/Maven
-Use Spring profiles and different configuration files:
-
-```bash
-# Development profile
-mvn spring-boot:run -Dspring-boot.run.profiles=development
-
-# Production profile  
-mvn spring-boot:run -Dspring-boot.run.profiles=production
-```
-
----
-
-## 💾 Persistent Data
-
-### Docker Deployment
-- MySQL data is stored in a Docker volume named `mysqldata`
-- Data persists between container restarts
-- Volume is automatically managed by Docker
-
-### Managing Docker Volumes
-
-**List volumes:**
-```bash
-docker volume ls
-```
-
-**Remove volume (reset database):**
-```bash
-# Linux/macOS/Windows - same command
-docker-compose down -v
-```
-
-**Backup volume (Linux/macOS):**
-```bash
-docker run --rm -v hyperativa_mysqldata:/source -v $(pwd):/backup alpine tar czf /backup/mysql-backup.tar.gz /source
-```
-
-**Backup volume (Windows PowerShell):**
-```powershell
-docker run --rm -v hyperativa_mysqldata:/source -v ${PWD}:/backup alpine tar czf /backup/mysql-backup.tar.gz /source
-```
-
-### Java/Maven Deployment
-- You are responsible for MySQL data persistence
-- Configure backups and maintenance at the database server level
-- Data is stored in your local MySQL installation
-
----
-
-## 🐛 Troubleshooting
-
-### Docker Issues
-1. **Check .env file**: Ensure it exists and variables are set correctly
-2. **Port conflicts**: Change ports in `.env` file if needed
-3. **Variable not loading**: Restart Docker Compose after modifying `.env`
-4. **View logs**: `docker-compose logs hyperapi`
-
-### Java/Maven Issues
-1. **MySQL not running**: Start MySQL service first
-2. **Connection refused**: Check MySQL is running on correct port
-3. **Access denied**: Verify database user credentials
-4. **Database not found**: Ensure database exists in MySQL
-
-### Connection Testing
-
-**Test MySQL connection (Linux/macOS):**
-```bash
-mysql -u app_user -p -h localhost hyperativa_db
-```
-
-**Test MySQL connection (Windows):**
-```cmd
-mysql -u app_user -p -h localhost hyperativa_db
-```
-
-**Test API health endpoint (all platforms):**
-```bash
-curl http://localhost:8080/health
-```
-
-**Windows alternative to curl (PowerShell):**
-```powershell
-Invoke-WebRequest -Uri "http://localhost:8080/health" -UseBasicParsing
-```
-
-### Platform-Specific Notes
-
-**Windows Users:**
-- Use PowerShell for better compatibility with Linux/macOS commands
-- Docker commands are the same across all platforms
-- For file operations, PowerShell's `Copy-Item` is recommended over `copy`
-
-**Linux/macOS Users:**
-- Standard bash commands work as expected
-- Environment variables use `export` syntax
-
-**All Platforms:**
-- Docker and Docker Compose commands are identical across platforms
-- Maven commands (`mvn`) work the same way
-
----
-
-## 📋 Recommendation
-
-- **Use Docker**: Best for most users - includes automatic database setup, consistent across all platforms
-- **Use Java/Maven**: Only for developers who need to modify code and have MySQL expertise
-
-**Key Difference**: With Docker, the database is included. With Java/Maven, you must set up MySQL separately.
-
-**Platform Compatibility**: Docker provides the most consistent experience across Windows, macOS, and Linux.
+**Note:** The application performs comprehensive internal logging of all batch processing operations, including individual card processing attempts and their status. However, the API does not expose public endpoints for accessing these audit logs or batch processing statistics. All security and processing logs are maintained internally for system administration purposes.
