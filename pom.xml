@@ -9,9 +9,9 @@
 		<relativePath/>
 	</parent>
 	<groupId>com.hyperativa</groupId>
-	<artifactId>demo</artifactId>
+	<artifactId>hyperativa</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
+	<name>hyperativa</name>
 	<description>API for registering and querying full card numbers</description>
 	<url/>
 	<licenses>

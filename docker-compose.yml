@@ -1,6 +1,5 @@
-version: '3.8'
 services:
-  database:
+  hyperdb:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
@@ -13,22 +12,29 @@ services:
       - mysqldata:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password
 
-  api:
+  hyperapi:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: jdbc:mysql://mysql:3306/${DATABASE_NAME}
-      DATABASE_USERNAME: ${DATABASE_USERNAME}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      # Database configuration
+      DATABASE_HOST: hyperdb
+      DATABASE_PORT: ${DATABASE_PORT:-3306}
+      DATABASE_NAME: ${DATABASE_NAME:-hyperativa_db}
+      DATABASE_URL: jdbc:mysql://hyperdb:3306/${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-app_user}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-default_password}
       SERVER_PORT: 8080
+
+      # Security
+      SECRET: ${SECRET:-my_default_secret_key_123456}
+      SALT: ${SALT:-default_salt_123}
+      ISSUER: ${ISSUER:-hyperativa-app}
+
     ports:
       - ${API_PORT:-8080}:8080
     depends_on:
-      - database
-      - postgres
-    volumes:
-      - ./app:/app
+      - hyperdb
 
 volumes:
   mysqldata:
