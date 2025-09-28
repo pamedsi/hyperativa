@@ -131,28 +131,6 @@ Docker Compose will automatically:
 - **Maven 3.9.11** or higher recommended
 - **MySQL Database must be installed and running separately**
 
-### Setting up MySQL Database for Java/Maven Deployment
-
-#### Step 1: Install and Start MySQL
-Ensure MySQL is installed and running on your system.
-
-#### Step 2: Create Database and User
-Connect to MySQL and execute:
-
-```sql
--- Create database
-CREATE DATABASE hyperativa_db;
-
--- Create user
-CREATE USER 'app_user'@'localhost' IDENTIFIED BY 'your_password_here';
-
--- Grant privileges
-GRANT ALL PRIVILEGES ON hyperativa_db.* TO 'app_user'@'localhost';
-
--- Apply changes
-FLUSH PRIVILEGES;
-```
-
 ### Manual Setup Steps
 
 #### 1. Configure Application Properties
