@@ -57,10 +57,10 @@ To use the API, follow this flow:
   "name": "John Smith",
   "email": "john@email.com",
   "password": "securePassword123",
-  "birthdate": "15/05/1990"
+  "birthdate": "05/15/1990"
 }
 ```
-**Date Format:** DD/MM/YYYY
+**Date Format:** MM/DD/YYYY
 
 ### 2. 🔑 Authentication
 **POST** `/authentication/login`
