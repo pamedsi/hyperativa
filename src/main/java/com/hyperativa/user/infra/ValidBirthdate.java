@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = BirthdateValidator.class)
 public @interface ValidBirthdate {
 
-    String message() default "User must be at least 18 years old.";
+    String message() default "";
 
     Class<?>[] groups() default {};
 

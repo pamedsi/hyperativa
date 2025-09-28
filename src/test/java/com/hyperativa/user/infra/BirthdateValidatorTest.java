@@ -8,8 +8,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BirthdateValidatorTest {
@@ -19,75 +23,70 @@ class BirthdateValidatorTest {
     @Mock
     private ConstraintValidatorContext context;
 
+    @Mock
+    private ConstraintValidatorContext.ConstraintViolationBuilder builder;
+
+    void initiateDependencies() {
+        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
+        when(builder.addConstraintViolation()).thenReturn(context);
+    }
+
     @Test
     void isValid_shouldReturnFalse_whenBirthdateIsNull() {
         // Given
-        LocalDate nullBirthdate = null;
+        initiateDependencies();
 
         // When
-        boolean result = validator.isValid(nullBirthdate, context);
+        boolean result = validator.isValid(null, context);
 
         // Then
         assertFalse(result);
+        verify(context).buildConstraintViolationWithTemplate(contains("Birthdate is required"));
+
     }
 
     @Test
     void isValid_shouldReturnFalse_whenUserIsUnder18YearsOld() {
         // Given
-        LocalDate underageBirthdate = LocalDate.now().minusYears(17);
+        String date = getDateInFormat(17);
+        initiateDependencies();
 
         // When
-        boolean result = validator.isValid(underageBirthdate, context);
+        boolean result = validator.isValid(date, context);
 
         // Then
         assertFalse(result);
+        verify(context).buildConstraintViolationWithTemplate(contains("User must be at least 18 old to save cards"));
     }
 
     @Test
-    void isValid_shouldReturnFalse_whenUserIsExactly17YearsAnd364DaysOld() {
+    void isValid_shouldReturnFalse_whenInvalidFormat() {
         // Given
-        LocalDate almost18Birthdate = LocalDate.now().minusYears(18).plusDays(1);
+        String date = "26/03/1999";
+        initiateDependencies();
 
         // When
-        boolean result = validator.isValid(almost18Birthdate, context);
+        boolean result = validator.isValid(date, context);
 
         // Then
         assertFalse(result);
-    }
-
-    @Test
-    void isValid_shouldReturnTrue_whenUserIsExactly18YearsOld() {
-        // Given
-        LocalDate exactly18Birthdate = LocalDate.now().minusYears(18);
-
-        // When
-        boolean result = validator.isValid(exactly18Birthdate, context);
-
-        // Then
-        assertTrue(result);
+        verify(context).buildConstraintViolationWithTemplate(contains("Birthdate format is invalid! Use MM/dd/yyyy"));
     }
 
     @Test
     void isValid_shouldReturnTrue_whenUserIsOver18YearsOld() {
         // Given
-        LocalDate adultBirthdate = LocalDate.now().minusYears(25);
+        String date = getDateInFormat(18);
 
         // When
-        boolean result = validator.isValid(adultBirthdate, context);
+        boolean result = validator.isValid(date, context);
 
         // Then
         assertTrue(result);
     }
 
-    @Test
-    void isValid_shouldReturnTrue_whenUserIs65YearsOld() {
-        // Given
-        LocalDate seniorBirthdate = LocalDate.now().minusYears(65);
-
-        // When
-        boolean result = validator.isValid(seniorBirthdate, context);
-
-        // Then
-        assertTrue(result);
+    private String getDateInFormat(int yearsAgo) {
+        return LocalDate.now().minusYears(yearsAgo).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
     }
+
 }

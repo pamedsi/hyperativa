@@ -16,7 +16,7 @@ class UserTest {
         CreateUserRequest request = mock(CreateUserRequest.class);
         when(request.name()).thenReturn("John Doe");
         when(request.email()).thenReturn("john@email.com");
-        when(request.birthdate()).thenReturn(LocalDate.of(1990, 1, 1));
+        when(request.getBirthdate()).thenReturn(LocalDate.of(1990, 1, 1));
         String hashedPassword = "hashed-password-123";
 
         // When

@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 
+import static com.hyperativa.handler.CustomMessageBuilder.buildCustomMessage;
 import static java.lang.String.format;
 
 @RequiredArgsConstructor
@@ -50,11 +51,7 @@ public class CardNumberValidator implements ConstraintValidator<ValidCardNumber,
         return true;
     }
 
-    private void buildCustomMessage(ConstraintValidatorContext context, String message) {
-        context.disableDefaultConstraintViolation();
-        context.buildConstraintViolationWithTemplate(message)
-                .addConstraintViolation();
-    }
+
 
     private boolean isValidLuhn(String number) {
         int sum = 0;

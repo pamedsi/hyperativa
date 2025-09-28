@@ -10,6 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.hyperativa.auth.application.service.TokenService;
 import com.hyperativa.user.application.service.UserService;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
@@ -33,7 +35,8 @@ class UserRestControllerTest {
                 "John Doe",
                 "john.doe@example.com",
                 "SecurePassword123!",
-                java.time.LocalDate.of(1990, 1, 1)
+                "01/01/1991"
+//                java.time.LocalDate.of(1990, 1, 1)
         );
 
         // When
@@ -51,7 +54,7 @@ class UserRestControllerTest {
                 "Jane Smith",
                 "jane.smith@example.com",
                 "AnotherPass123!",
-                java.time.LocalDate.of(1985, 12, 31)
+                "12/25/1990"
         );
 
         // When
@@ -65,11 +68,13 @@ class UserRestControllerTest {
     @Test
     void createUser_shouldCallUserServiceCreateUser_whenRequestWithBoundaryValues() {
         // Given
+        LocalDate date = LocalDate.now().minusYears(18);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         CreateUserRequest boundaryRequest = new CreateUserRequest(
-                "A", // Minimum name length (assuming @ValidUserName allows 1 char)
-                "a@b.co", // Minimum valid email
-                "Pass1!", // Minimum valid password (assuming 6 chars)
-                java.time.LocalDate.now().minusYears(18) // Exactly 18 years old
+                "A",
+                "a@b.co",
+                "Pass1!",
+                date.format(formatter) // Exactly 18 years old
         );
 
         // When

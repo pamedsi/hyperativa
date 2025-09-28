@@ -57,7 +57,7 @@ public class User implements UserDetails {
         name = userRequestDTO.name();
         email = userRequestDTO.email();
         passwordHash = hashedPassword;
-        birthdate = userRequestDTO.birthdate();
+        birthdate = userRequestDTO.getBirthdate();
         role = UserRole.CUSTOMER;
         deleted = false;
     }
